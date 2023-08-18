@@ -96,8 +96,13 @@ const updateUser = async (req, res) => {
     if (!user) {
       return badRequrest(res, "User does not exit");
     }
-    const salt = await Bcrypt.genSalt(Number(process.env.SALT));
-    const hashpassword = await Bcrypt.hash(password, salt);
+    let userPassword;
+    if (password && password !== "") {
+      const salt = await Bcrypt.genSalt(Number(process.env.SALT));
+      userPassword = await Bcrypt.hash(password, salt);
+    } else {
+      userPassword = password;
+    }
     const updateUser = {
       name,
       username,
@@ -106,7 +111,7 @@ const updateUser = async (req, res) => {
       phone_no,
       address,
       nrc,
-      password: hashpassword,
+      password: userPassword,
     };
 
     const updateded = await UserModel.findByIdAndUpdate(id, updateUser);
@@ -124,10 +129,22 @@ const userDetail = async (req, res) => {
       path: "borrowed_books",
       populate: { path: "book_id" },
     });
+    const data = {
+      _id: user._id,
+      name: user.name,
+      username: user.username,
+      user_role: user.user_role,
+      email: user.email,
+      phone_no: user.phone_no,
+      address: user.address,
+      borrowed_books: user.borrowed_books,
+      borrow_count: user.borrow_count,
+      nrc: user.nrc,
+    };
     if (!user) {
       return badRequrest(res, "user does not exist");
     }
-    return successful(res, user, "User Retrive successfully");
+    return successful(res, data, "User Retrive successfully");
   } catch (err) {
     console.log(err);
     return internalServerError(res);

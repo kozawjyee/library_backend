@@ -10,7 +10,7 @@ const signUpBodyValidation = (body) => {
     address: Joi.string().required(),
     nrc: Joi.string().required(),
     email: Joi.string().email().required().label("Email"),
-    password: passwordComplexity().required().label("Password"),
+    password: Joi.string().required().label("Password"),
     borrowed_books: Joi.array(),
   });
   return schema.validate(body);
